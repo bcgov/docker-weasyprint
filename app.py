@@ -56,7 +56,7 @@ def generate():
         url_args = {'encoding': request.args.get('encoding',  None),
                     'media_type': request.args.get('media_type', 'print'),
                     'base_url': request.args.get('base_url', None)}
-        html = HTML(url=request.get_data().decode('UTF-8'), **url_args)
+        html = HTML(url=request.get_data().decode('utf-8'), **url_args)
     pdf = html.write_pdf()
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'

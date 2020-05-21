@@ -39,4 +39,15 @@ curl -v -X POST -d @test.html -JLO http://127.0.0.1:5001/pdf?filename=result.pdf
 
 This example will use the file `test.html` and return a response with `Content-Type: application/pdf` and `Content-Disposition: inline; filename=result.pdf` headers.  The body of the response will be the PDF rendering of the html document.
 
+`POST` to `/pdf` can be used to generate a PDF from a URL. Use the `type=url` query parameter and a url in a text/plain body, call:
+
+```
+curl -v -X POST -H 'Content-Type: text/plain' -d 'https://www.google.ca/?client=safari&channel=iphone_bm'-JLO http://127.0.0.1:5001/pdf?filename=result_from_url.pdf&type=url
+```
+
+This example will use the url `https://www.google.ca/?client=safari&channel=iphone_bm` and return a response with `Content-Type: application/pdf` and `Content-Disposition: inline; filename=result_from_url.pdf` headers.  The body of the response will be the PDF rendering of the url (renders static html only, not for Single Page Applications).
+
+When `type=url`, additional query parameters can be passed in: `encoding`, `media_type`, `base_url`.  See [Weasyprint HTML api](https://weasyprint.readthedocs.io/en/stable/api.html#weasyprint.HTML).  
+
+
 In addition `/health` is a health check endpoint and a `GET` returns 'ok'.
