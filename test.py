@@ -76,5 +76,34 @@ class TestMultiple(unittest.TestCase):
         self.assertEqual(len(pages), 2)
 
 
+def request_factory_url(path='/'):
+    url = 'http://127.0.0.1:5001%s' % path
+    headers = {
+        'Content-Type': 'text/plain'
+    }
+    return Request(url, data='https://www.google.ca/?client=safari&channel=iphone_bm'.encode('utf-8'), headers=headers, method='POST')
+
+
+class TestUrlPdf(unittest.TestCase):
+
+    def setUp(self):
+        request = request_factory_url('/pdf?filename=sample_url.pdf&type=url')
+        self.response = urlopen(request)
+
+    def tearDown(self):
+        self.response.close()
+
+    def test_response_code(self):
+        self.assertEqual(self.response.getcode(), 200)
+
+    def test_headers(self):
+        headers = dict(self.response.info())
+        self.assertEqual(headers['Content-Type'], 'application/pdf')
+        self.assertEqual(headers['Content-Disposition'], 'inline;filename=sample_url.pdf')
+
+    def test_body(self):
+        self.assertEqual(self.response.read()[:4], b'%PDF')
+
+
 if __name__ == '__main__':
     unittest.main()

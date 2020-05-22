@@ -40,6 +40,8 @@ def home():
             <li>POST to <code>/multiple?filename=myfile.pdf</code>. The body
                 should contain a JSON list of html strings. They will each
                 be rendered and combined into a single pdf</li>
+            <li>POST to <code>/pdf?filename=myfile.pdf&type=url</code>. The body 
+                should be plain text and must contain a url</li>
         </ul>
     '''
 
@@ -47,9 +49,16 @@ def home():
 @app.route('/pdf', methods=['POST'])
 def generate():
     name = request.args.get('filename', 'unnamed.pdf')
-    app.logger.info('POST  /pdf?filename=%s' % name)
-    #print ( request.get_data() )
-    html = HTML(string=request.get_data())
+    type = request.args.get('type', 'string')
+    app.logger.info('POST  /pdf?filename=%s&type=%s' % (name, type))
+    html = None
+    if type == 'string':
+        html = HTML(string=request.get_data())
+    elif type == 'url':
+        url_args = {'encoding': request.args.get('encoding',  None),
+                    'media_type': request.args.get('media_type', 'print'),
+                    'base_url': request.args.get('base_url', None)}
+        html = HTML(url=request.get_data().decode('utf-8'), **url_args)
     pdf = html.write_pdf()
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
