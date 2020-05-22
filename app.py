@@ -40,6 +40,8 @@ def home():
             <li>POST to <code>/multiple?filename=myfile.pdf</code>. The body
                 should contain a JSON list of html strings. They will each
                 be rendered and combined into a single pdf</li>
+            <li>POST to <code>/pdf?filename=myfile.pdf&type=url</code>. The body 
+                should be plain text and must contain a url</li>
         </ul>
     '''
 

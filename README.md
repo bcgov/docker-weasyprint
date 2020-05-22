@@ -42,7 +42,7 @@ This example will use the file `test.html` and return a response with `Content-T
 `POST` to `/pdf` can be used to generate a PDF from a URL. Use the `type=url` query parameter and a url in a text/plain body, call:
 
 ```
-curl -v -X POST -H 'Content-Type: text/plain' -d 'https://www.google.ca/?client=safari&channel=iphone_bm'-JLO http://127.0.0.1:5001/pdf?filename=result_from_url.pdf&type=url
+curl --location --request POST 'http://127.0.0.1:5001/pdf?filename=result_from_url.pdf&type=url' -JLO --header 'Content-Type: text/plain' --data-raw 'https://www.google.ca/?client=safari&channel=iphone_bm'
 ```
 
 This example will use the url `https://www.google.ca/?client=safari&channel=iphone_bm` and return a response with `Content-Type: application/pdf` and `Content-Disposition: inline; filename=result_from_url.pdf` headers.  The body of the response will be the PDF rendering of the url (renders static html only, not for Single Page Applications).
