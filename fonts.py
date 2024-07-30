@@ -1,5 +1,5 @@
 from weasyprint import CSS
-from weasyprint.fonts import FontConfiguration
+from weasyprint.text.fonts import FontConfiguration
 
 def css_for_extra_fonts():
     font_config = FontConfiguration()
