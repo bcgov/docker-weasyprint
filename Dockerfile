@@ -1,5 +1,4 @@
-FROM ubuntu:18.04
-#FROM python:3.6-stretch
+FROM python:3.12
 
 #RUN echo "deb http://ftp.debian.org/debian stretch main contrib" > /etc/apt/sources.list
 

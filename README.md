@@ -3,7 +3,7 @@ title: WeasyPrint HTML to PDF/PNG Microservice
 description: A ready to use, OpenShift compatible, HTML to PDF/PNG microservice for your application.
 author: WadeBarnes
 resourceType: Components
-personas: 
+personas:
   - Developer
   - Product Owner
   - Designer
@@ -25,6 +25,12 @@ Pre-built images can be found here; [bcgovimages/weasyprint](https://hub.docker.
 `docker pull bcgovimages/weasyprint`
 
 # Usage - Docker Example
+
+Build the docker image
+
+```
+docker build --no-cache -f Dockerfile -t bcgovimages/weasyprint .
+```
 
 Run the docker image, exposing port 5001
 
