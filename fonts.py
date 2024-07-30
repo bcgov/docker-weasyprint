@@ -13,12 +13,20 @@ def css_for_extra_fonts():
             src: local('BCSans-Bold');
         }
         @font-face {
+            font-family: 'BC Sans Light';
+            src: local('BCSans-Light');
+        }
+        @font-face {
             font-family: 'BC Sans Bold Italic';
             src: local('BCSans-BoldItalic');
         }
         @font-face {
             font-family: 'BC Sans Italic';
             src: local('BCSans-Italic');
+        }
+        @font-face {
+            font-family: 'BC Sans Light Italic';
+            src: local('BCSans-LightItalic');
         }
         @font-face {
             font-family: 'Noto Sans Light';
