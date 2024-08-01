@@ -9,15 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3 
         with:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker meta
         id: meta
-        uses: crazy-max/ghaction-docker-meta@v2
+        uses: crazy-max/ghaction-docker-meta@v5
         with:
           # list of Docker images to use as base name for tags
           images: |
@@ -32,7 +32,7 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           tags: ${{ steps.meta.outputs.tags }}
           file: Dockerfile
