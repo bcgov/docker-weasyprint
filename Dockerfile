@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.13
 
 #RUN echo "deb http://ftp.debian.org/debian stretch main contrib" > /etc/apt/sources.list
 
