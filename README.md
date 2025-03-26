@@ -20,22 +20,22 @@ The [docker-weasyprint](https://github.com/BCDevOps/docker-weasyprint) project b
 
 # Images
 
-Pre-built images can be found here; [bcgovimages/weasyprint](https://hub.docker.com/r/bcgovimages/weasyprint)
+Pre-built images can be found here; [ghcr.io/bcgov/weasyprint:63.1.0](https://github.com/bcgov/docker-weasyprint/pkgs/container/weasyprint)
 
-`docker pull bcgovimages/weasyprint`
+`docker pull ghcr.io/bcgov/weasyprint:63.1.0`
 
 # Usage - Docker Example
 
 Build the docker image
 
 ```
-docker build --no-cache -f Dockerfile -t bcgovimages/weasyprint .
+docker build --no-cache -f Dockerfile -t ghcr.io/bcgov/weasyprint .
 ```
 
 Run the docker image, exposing port 5001
 
 ```
-docker run -p 5001:5001 bcgovimages/weasyprint
+docker run -p 5001:5001 ghcr.io/bcgov/weasyprint
 ```
 
 A `POST` to `/pdf` on port 5001 with an html body will result in a response containing a PDF. The filename may be set using a query parameter, e.g.:

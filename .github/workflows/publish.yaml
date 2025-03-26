@@ -1,40 +1,68 @@
-name: bcgovimages/weasyprint - Publish
+name: Publish Backup Container Images
+run-name: Publish Backup Container ${{ inputs.tag || github.event.release.tag_name }} Images
 
-on: 
+on:
   release:
     types: [published, edited]
-  
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Optional - The branch, tag or SHA to checkout.'
+        required: false
+        type: string
+      platforms:
+        description: 'Platforms - Comma separated list of the platforms to support.'
+        required: true
+        default: linux/amd64
+        type: string
+
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+      platforms:
+        required: true
+        default: linux/amd64
+        type: string
+
 jobs:
-  docker:
+  publish-image:
+    # Ensure this only runs on the main repository so we're not publishing images to other repositories.
+    if: ${{ github.event.repository.full_name == 'bcgov/weasyprint' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        imageName: [weasyprint]
+        include:
+          - imageName: weasyprint
+            dockerFile: Dockerfile
+
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-      - name: Login to DockerHub
-        uses: docker/login-action@v3 
+
+      - name: Lowercase repo owner
+        id: lowercase_repo_owner
+        uses: ASzc/change-string-case-action@v6
         with:
-          username: ${{ secrets.DOCKER_LOGIN }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Docker meta
-        id: meta
-        uses: crazy-max/ghaction-docker-meta@v5
+          string: ${{ github.repository_owner }}
+
+      - name: Build and publish the image
+        uses: ./.github/actions/publish-image
         with:
-          # list of Docker images to use as base name for tags
-          images: |
-            bcgovimages/weasyprint
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
-      - name: Push to Docker Hub
-        uses: docker/build-push-action@v6
-        with:
-          tags: ${{ steps.meta.outputs.tags }}
-          file: Dockerfile
+          ref: ${{ inputs.ref || '' }}
+          registry: ghcr.io
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: ${{ matrix.dockerFile }}
           context: .
-          push: true
+          image_name: ${{ steps.lowercase_repo_owner.outputs.lowercase }}/${{ matrix.imageName }}
+          platforms: ${{ inputs.platforms || 'linux/amd64' }}
