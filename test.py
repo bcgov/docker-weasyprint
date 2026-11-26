@@ -1,11 +1,12 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3
 
 import json
-import re
+import io
 import subprocess
 import unittest
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+from pypdf import PdfReader
 
 html_data = '''
 <!DOCTYPE html>
@@ -73,8 +74,7 @@ class TestMultiple(unittest.TestCase):
 
     def test_body(self):
         data = self.response.read()
-        pages = re.findall(rb'<<\s+/Type\s+/Page\b', data, re.MULTILINE|re.DOTALL)
-        self.assertEqual(len(pages), 2)
+        self.assertEqual(len(PdfReader(io.BytesIO(data)).pages), 2)
 
 
 class TestResourceProtection(unittest.TestCase):

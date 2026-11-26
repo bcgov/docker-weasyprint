@@ -1,4 +1,4 @@
-FROM python:3.13.18-alpine3.24
+FROM python:3.14.10-alpine3.24
 
 # Install upgrades and dependancies for WeasyPrint
 RUN apk update && \
