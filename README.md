@@ -23,6 +23,8 @@ Pre-built images can be found here; [ghcr.io/bcgov/weasyprint:63.1.0](https://gi
 
 `docker pull ghcr.io/bcgov/weasyprint:63.1.0`
 
+Release images receive semantic-version tags and a seven-character commit SHA tag. Manual workflow runs require an image tag and can optionally specify a branch, tag, or commit to build; they also receive a tag for the checked-out commit's short SHA.
+
 # Usage - Docker Example
 
 Build the docker image

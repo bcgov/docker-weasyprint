@@ -52,4 +52,4 @@ ENV TIMEOUT=120
 
 ENV XDG_CACHE_HOME=/tmp/.cache
 ENV MAX_REQUEST_BYTES=2097152
-CMD gunicorn --bind 0.0.0.0:5001 --timeout $TIMEOUT --workers $NUM_WORKERS  app:app
+CMD gunicorn --bind 0.0.0.0:5001 --timeout $TIMEOUT --workers $NUM_WORKERS --control-socket /tmp/.gunicorn app:app

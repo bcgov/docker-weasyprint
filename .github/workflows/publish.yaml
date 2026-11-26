@@ -1,12 +1,16 @@
-name: Publish Backup Container Images
-run-name: Publish Backup Container ${{ inputs.tag || github.event.release.tag_name }} Images
+name: Publish WeasyPrint Container Images
+run-name: Publish WeasyPrint Container ${{ inputs.tag || github.event.release.tag_name || github.sha }} Images
 
 on:
   release:
-    types: [published, edited]
+    types: [published]
 
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'Image tag to publish (for example, v1.2.3 or feature-abc-1234).'
+        required: true
+        type: string
       ref:
         description: 'Optional - The branch, tag or SHA to checkout.'
         required: false
@@ -19,18 +23,28 @@ on:
 
   workflow_call:
     inputs:
+      tag:
+        description: 'Optional image tag to publish.'
+        required: false
+        type: string
       ref:
         required: false
         type: string
       platforms:
         required: true
-        default: linux/amd64
         type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name || inputs.tag || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish-image:
     # Ensure this only runs on the main repository so we're not publishing images to other repositories.
-    if: ${{ github.event.repository.full_name == 'bcgov/weasyprint' }}
+    if: ${{ github.event.repository.full_name == 'bcgov/docker-weasyprint' }}
 
     strategy:
       fail-fast: false
@@ -59,6 +73,7 @@ jobs:
         uses: ./.github/actions/publish-image
         with:
           ref: ${{ inputs.ref || '' }}
+          tag: ${{ inputs.tag || '' }}
           registry: ghcr.io
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
