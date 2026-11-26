@@ -5,6 +5,7 @@ import re
 import subprocess
 import unittest
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 html_data = '''
 <!DOCTYPE html>
@@ -48,27 +49,6 @@ class TestPdf(unittest.TestCase):
         self.assertEqual(self.response.read()[:4], b'%PDF')
 
 
-class TestPng(unittest.TestCase):
-
-    def setUp(self):
-        request = request_factory('/png?filename=sample.png')
-        self.response = urlopen(request)
-
-    def tearDown(self):
-        self.response.close()
-
-    def test_response_code(self):
-        self.assertEqual(self.response.getcode(), 200)
-
-    def test_headers(self):
-        headers = dict(self.response.info())
-        self.assertEqual(headers['Content-Type'], 'image/png')
-        self.assertEqual(headers['Content-Disposition'], 'inline;filename=sample.png')
-
-    def test_body(self):
-        self.assertEqual(self.response.read()[:4], b'\x89PNG')
-
-
 class TestMultiple(unittest.TestCase):
 
     def setUp(self):
@@ -97,5 +77,35 @@ class TestMultiple(unittest.TestCase):
         self.assertEqual(len(pages), 2)
 
 
+class TestResourceProtection(unittest.TestCase):
+    def post(self, path, data, content_type='text/html'):
+        request = Request(
+            'http://127.0.0.1:5001' + path, data=data,
+            headers={'Content-Type': content_type}, method='POST')
+        return urlopen(request)
+    def test_pdf_rejects_external_and_local_resources(self):
+        for url in ('http://127.0.0.1:1/image.svg', 'file:///etc/passwd'):
+            with self.subTest(url=url):
+                html = ('<img src="%s">' % url).encode('utf-8')
+                with self.assertRaises(HTTPError) as error:
+                    self.post('/pdf', html)
+                self.assertEqual(error.exception.code, 400)
+                self.assertEqual(error.exception.read(), b'Bad Request')
+    def test_pdf_accepts_embedded_image(self):
+        html = (b'<img src="data:image/gif;base64,'
+                b'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==">')
+        with self.post('/pdf', html) as response:
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.read(4), b'%PDF')
+    def test_multiple_rejects_resource_in_any_document(self):
+        data = json.dumps([html_data, '<img src="file:///etc/passwd">']).encode('utf-8')
+        with self.assertRaises(HTTPError) as error:
+            self.post('/multiple', data, 'application/json')
+        self.assertEqual(error.exception.code, 400)
+        self.assertEqual(error.exception.read(), b'Bad Request')
+    def test_request_larger_than_default_limit_is_rejected(self):
+        with self.assertRaises(HTTPError) as error:
+            self.post('/pdf', b'x' * (2 * 1024 * 1024 + 1))
+        self.assertEqual(error.exception.code, 413)
 if __name__ == '__main__':
     unittest.main()

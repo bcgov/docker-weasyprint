@@ -1,6 +1,6 @@
 ---
-title: WeasyPrint HTML to PDF/PNG Microservice
-description: A ready to use, OpenShift compatible, HTML to PDF/PNG microservice for your application.
+title: WeasyPrint HTML to PDF Microservice
+description: A ready to use, OpenShift compatible, HTML to PDF microservice for your application.
 author: WadeBarnes
 resourceType: Components
 personas:
@@ -11,12 +11,11 @@ labels:
   - weasyprint
   - html
   - pdf
-  - png
   - microservice
 ---
-# WeasyPrint HTML to PDF/PNG Microservice
+# WeasyPrint HTML to PDF Microservice
 
-The [docker-weasyprint](https://github.com/BCDevOps/docker-weasyprint) project bundles [Weasyprint](http://weasyprint.org/) into an easy to use, OpenShift compatible, HTML to PDF/PNG microservice with a simple REST interface.
+The [docker-weasyprint](https://github.com/BCDevOps/docker-weasyprint) project bundles [Weasyprint](http://weasyprint.org/) into an easy to use, OpenShift compatible, HTML to PDF microservice with a simple REST interface.
 
 # Images
 
@@ -44,6 +43,6 @@ A `POST` to `/pdf` on port 5001 with an html body will result in a response cont
 curl -v -X POST -d @test.html -JLO http://127.0.0.1:5001/pdf?filename=result.pdf
 ```
 
-This example will use the file `test.html` and return a response with `Content-Type: application/pdf` and `Content-Disposition: inline; filename=result.pdf` headers.  The body of the response will be the PDF rendering of the html document. To generate a png, make a call to `/png` instead
+This example will use the file `test.html` and return a response with `Content-Type: application/pdf` and `Content-Disposition: inline; filename=result.pdf` headers.  The body of the response will be the PDF rendering of the html document.
 
 In addition `/health` is a health check endpoint and a `GET` returns 'ok'.
