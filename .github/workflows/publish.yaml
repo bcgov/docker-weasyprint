@@ -61,11 +61,11 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Lowercase repo owner
         id: lowercase_repo_owner
-        uses: ASzc/change-string-case-action@v6
+        uses: ASzc/change-string-case-action@ecd1412d078f2e06e9eedcbaa6fcd988151c3f82 # v8
         with:
           string: ${{ github.repository_owner }}
 
