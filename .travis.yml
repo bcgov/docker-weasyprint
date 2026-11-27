@@ -2,12 +2,13 @@ sudo: required
 
 language: python
 python:
-  - "3.5"
+  - "3.14"
 
 services:
   - docker
 
 install:
+  - pip install -r requirements-test.txt
   - docker build -t weasyprint .
   - docker run -d -p 5001:5001 --name weasyprint weasyprint
 

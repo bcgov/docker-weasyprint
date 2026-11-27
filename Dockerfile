@@ -1,4 +1,4 @@
-FROM python:3.13.7-alpine
+FROM python:3.14.10-alpine3.24
 
 # Install upgrades and dependancies for WeasyPrint
 RUN apk update && \
@@ -50,4 +50,6 @@ EXPOSE 5001
 ENV NUM_WORKERS=3
 ENV TIMEOUT=120
 
-CMD gunicorn --bind 0.0.0.0:5001 --timeout $TIMEOUT --workers $NUM_WORKERS  app:app
+ENV XDG_CACHE_HOME=/tmp/.cache
+ENV MAX_REQUEST_BYTES=2097152
+CMD gunicorn --bind 0.0.0.0:5001 --timeout $TIMEOUT --workers $NUM_WORKERS --control-socket /tmp/.gunicorn app:app

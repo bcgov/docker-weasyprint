@@ -6,6 +6,10 @@ inputs:
     description: 'Optional - The branch, tag or SHA to checkout.'
     required: false
 
+  tag:
+    description: 'Optional image tag to publish.'
+    required: false
+
   registry:
     description: The image registry to use for publishing.
     required: true
@@ -36,12 +40,26 @@ runs:
   using: "composite"
   steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         ref: ${{ inputs.ref || '' }}
 
+    - name: Set build metadata
+      id: vars
+      shell: bash
+      env:
+        REQUESTED_TAG: ${{ inputs.tag }}
+      run: |
+        if [[ -n "$REQUESTED_TAG" && ! "$REQUESTED_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
+          echo "Requested image tag is not a valid Docker tag." >&2
+          exit 1
+        fi
+        sha="$(git rev-parse HEAD)"
+        echo "sha=$sha" >> "$GITHUB_OUTPUT"
+        echo "short_sha=${sha:0:7}" >> "$GITHUB_OUTPUT"
+
     - name: Cache Docker layers
-      uses: actions/cache@v4
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-buildx-${{ github.sha }}
@@ -49,31 +67,35 @@ runs:
           ${{ runner.os }}-buildx-
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
       with:
         images: |
           ${{ inputs.registry }}/${{ inputs.image_name }}
         tags: |
           type=schedule
-          type=ref,event=branch
-          type=ref,event=pr
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=semver,pattern={{major}}
+          type=ref,event=branch,enable=${{ inputs.tag == '' }}
+          type=ref,event=pr,enable=${{ inputs.tag == '' }}
+          type=semver,pattern={{version}},enable=${{ inputs.tag == '' }}
+          type=semver,pattern={{major}}.{{minor}},enable=${{ inputs.tag == '' }}
+          type=semver,pattern={{major}},enable=${{ inputs.tag == '' }}
+          type=raw,value=${{ steps.vars.outputs.short_sha }},priority=100
+          type=raw,value=${{ inputs.tag }},enable=${{ inputs.tag != '' }}
+        labels: |
+          org.opencontainers.image.revision=${{ steps.vars.outputs.sha }}
 
     - name: Log in to the Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.registry_username }}
         password: ${{ inputs.registry_password }}
 
     - name: Build and push to the GitHub Container Registry
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
       with:
         push: true
         context: ${{ inputs.context }}
